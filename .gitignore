@@ -1,4 +1,5 @@
 node_modules/
 dist/
 .env
+.npmrc
 m\[1\]).join('')
