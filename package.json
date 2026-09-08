@@ -1,0 +1,32 @@
+{
+  "name": "design-taste-mcp",
+  "version": "1.0.0",
+  "description": "MCP server giving AI coding agents design taste across the UI-building workflow: rubrics, static checks, component/style registries, motion presets, render critique, and staged 3D scene guidance.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "design-taste-mcp": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=20.18.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start": "node --env-file-if-exists=.env dist/index.js",
+    "test": "node --env-file-if-exists=.env scripts/acceptance-test.mjs"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "axe-core": "^4.10.0",
+    "jsdom": "^26.0.0",
+    "playwright": "^1.63.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
