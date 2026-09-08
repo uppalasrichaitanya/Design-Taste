@@ -22,6 +22,7 @@ import {
   SCENE_PASSES,
   GATE_INSTRUCTION,
   SELF_CORRECT_INSTRUCTION,
+  isPlausibleThreeJsPropertyName,
   type ScenePass,
 } from "../config/sceneGuidance.js";
 import {
@@ -109,7 +110,7 @@ export async function getSceneGuidance(args: GetSceneGuidanceArgs): Promise<Scen
         selfCorrected: false,
       };
 
-      const structuralGaps = missingContractKeys(pass, draft);
+      const structuralGaps = structuralGapsFor(pass, draft);
       const review = await gatePass(provider, pass, brief, decided, draft);
 
       if ("gateError" in review) {
@@ -137,7 +138,7 @@ export async function getSceneGuidance(args: GetSceneGuidanceArgs): Promise<Scen
       entry.selfCorrected = true;
       try {
         const corrected = await selfCorrectPass(provider, pass, brief, decided, draft, combinedGaps);
-        const redoStructural = missingContractKeys(pass, corrected);
+        const redoStructural = structuralGapsFor(pass, corrected);
         const redoReview = await gatePass(provider, pass, brief, decided, corrected);
         if ("gateError" in redoReview) {
           entry.gateError = redoReview.gateError;
@@ -208,6 +209,67 @@ function missingContractKeys(pass: ScenePass, draft: Record<string, unknown>): s
     const v = draft[k];
     return v === undefined || v === null || v === "";
   }).map((k) => `contract field "${k}" is missing or empty`);
+}
+
+/**
+ * Deterministic extras validation: material entries' extras strings must
+ * only name real Three.js material properties (see the known-good list in
+ * sceneGuidance.ts). Fabricated property names — confident-sounding but
+ * nonexistent, like v1.0.0's `metalnessReflectivity` — become structural
+ * gaps and flow into self-correct like any other contract violation.
+ * Prose inside extras is allowed after the parameters; the check only
+ * judges the `name=value` tokens.
+ */
+export function fabricatedPropertyGaps(draft: Record<string, unknown>): string[] {
+  const materials = draft.materials;
+  if (!Array.isArray(materials)) return [];
+  const gaps: string[] = [];
+  for (const entry of materials) {
+    if (!entry || typeof entry !== "object") continue;
+    const extras = (entry as Record<string, unknown>).extras;
+    if (typeof extras !== "string" || extras.trim() === "" || /^n\/a/i.test(extras.trim())) continue;
+    const tokens = extras.split(/[,;]\s*/);
+    for (const token of tokens) {
+      const nameMatch = token.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|:|\s)\s*/);
+      if (!nameMatch) continue;
+      const name = nameMatch[1];
+      if (!isPlausibleThreeJsPropertyName(name)) {
+        gaps.push(
+          `materials extras token "${token.trim()}" names "${name}", which is not a real Three.js material property; replace it with a real property or drop the token`
+        );
+      }
+    }
+  }
+  return gaps;
+}
+
+/**
+ * All deterministic (non-model) gap checks for a pass draft: contract
+ * completeness plus fabricated-Three.js-property detection for the
+ * material pass. Used for both the first gate and the post-self-correct
+ * re-gate.
+ */
+function structuralGapsFor(pass: ScenePass, draft: Record<string, unknown>): string[] {
+  return [...missingContractKeys(pass, draft), ...fabricatedPropertyGaps(draft)];
+}
+
+/**
+ * Normalize model output strings before they are used: U+2212 (true
+ * minus) and U+2213 (minus-or-plus) → ASCII '-' so numeric strings like
+ * "[−2.2, 0.6, 3.4]" parseFloat cleanly without callers pre-processing.
+ * Applied to every string field in pass drafts.
+ */
+function normalizeDraftStrings(value: unknown): unknown {
+  if (typeof value === "string") {
+    return value.replace(/[\u2212\u2213]/g, "-");
+  }
+  if (Array.isArray(value)) return value.map(normalizeDraftStrings);
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value)) out[k] = normalizeDraftStrings(v);
+    return out;
+  }
+  return value;
 }
 
 function priorPassesBlock(decided: DecidedPass[]): string {
@@ -358,7 +420,10 @@ function tryParseJson(raw: string): Record<string, unknown> | null {
   try {
     const data: unknown = JSON.parse(text);
     if (data && typeof data === "object" && !Array.isArray(data)) {
-      return data as Record<string, unknown>;
+      // Normalize U+2212/U+2213 to ASCII '-' in every string before the
+      // draft is gated or returned (v1.0.1 fix: numeric vector strings
+      // must parseFloat without caller-side pre-processing).
+      return normalizeDraftStrings(data) as Record<string, unknown>;
     }
     return null;
   } catch {

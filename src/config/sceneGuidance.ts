@@ -139,7 +139,68 @@ export const SCENE_PASSES: ScenePass[] = [
 
 /** Gate prompt fragments reused per pass (text-gate, per the settled decision). */
 export const GATE_INSTRUCTION =
-  "You are a strict technical art director reviewing a draft scene-guidance pass. Judge the draft ONLY against the listed criteria. Be harsh on vagueness: a criterion is unmet if the draft satisfies it only with adjectives. Respond with ONLY a JSON object: {\"pass\": true|false, \"gaps\": [\"<specific missing or unmet thing>\", ...]}. If pass is true, gaps must be [].";
+  "You are a strict technical art director reviewing a draft scene-guidance pass. Judge the draft ONLY against the listed criteria. Be harsh on vagueness: a criterion is unmet if the draft satisfies it only with adjectives. Gaps must describe problems in the pass under review ONLY — earlier passes are fixed context, never the subject of a gap, and any cross-pass inconsistency should be phrased as a fix for the current pass. Respond with ONLY a JSON object: {\"pass\": true|false, \"gaps\": [\"<specific missing or unmet thing>\", ...]}. If pass is true, gaps must be [].";
 
 export const SELF_CORRECT_INSTRUCTION =
   "You previously produced a scene-guidance pass draft that failed review. Revise the SAME pass: keep the same JSON contract, fix every gap listed by the reviewer, change nothing that already satisfied the contract. Respond with ONLY the JSON object for the pass, no prose.";
+
+/**
+ * Known-good Three.js material property names (MeshStandardMaterial and
+ * MeshPhysicalMaterial superset), checked deterministically against the
+ * extras strings the material pass produces. Anything else is treated as
+ * a fabricated property — exactly the v1.0.0 failure mode, where the
+ * model invented `metalnessReflectivity` (not a real Three.js property)
+ * with confident phrasing. Naming conventions Three.js actually uses
+ * (camelCase, and `envMap*`/`clearcoat*`/`anisotropy*` prefixes for the
+ * physical extensions) are accepted as classes, so new-but-real
+ * properties don't get falsely flagged.
+ *
+ * Sources: three.js docs (Material / MeshStandardMaterial /
+ * MeshPhysicalMaterial) as of r160+.
+ */
+export const THREE_JS_MATERIAL_PROPERTIES: Set<string> = new Set([
+  // Shared PBR core (MeshStandardMaterial)
+  "roughness", "metalness", "color", "emissive", "emissiveIntensity",
+  "map", "normalMap", "normalScale", "bumpMap", "bumpScale",
+  "displacementMap", "displacementScale", "displacementBias",
+  "aoMap", "aoMapIntensity", "alphaMap", "alphaTest",
+  "envMap", "envMapIntensity", "flatShading", "wireframe",
+  "transparent", "opacity", "side", "vertexColors", "fog",
+  "lightMap", "lightMapIntensity", "specularIntensity", "specularColor",
+  "anisotropy", "anisotropyRotation", "sheen", "sheenColor", "sheenRoughness",
+  "clearcoat", "clearcoatMap", "clearcoatRoughness", "clearcoatNormalMap",
+  "clearcoatNormalScale", "dispersion", "iridescence", "iridescenceIOR",
+  "iridescenceThicknessRange", "iridescenceMap", "iridescenceThicknessMap",
+  "reflectivity", "refractionRatio", "ior", "thickness", "transmission",
+  "attenuationColor", "attenuationDistance", "specularIntensityMap",
+  "specularColorMap", "defines", "userData",
+]);
+
+/**
+ * Extra property-name shapes that are real Three.js conventions even
+ * though they're not single entries in the list above: uniform suffixes
+ * and texture-map suffixes on any stem, plus the envMap alias spelling
+ * environmentMapIntensity that vendors/imports sometimes surface.
+ */
+export function isPlausibleThreeJsPropertyName(name: string): boolean {
+  const n = name.trim();
+  if (!n) return false;
+  if (THREE_JS_MATERIAL_PROPERTIES.has(n)) return true;
+  // Real convention: any property ending in -Map / -Intensity / -Scale /
+  // -Roughness extends a real Three.js family; accept the class.
+  if (/^(envMap|environmentMap|clearcoat|sheen|anisotropy|iridescence|specular|emissive|light|ao|normal|displacement|alpha|transmission|attenuation|ior)/.test(n)) {
+    return (
+      n.endsWith("Map") ||
+      n.endsWith("Intensity") ||
+      n.endsWith("Scale") ||
+      n.endsWith("Roughness") ||
+      n.endsWith("Rotation") ||
+      n.endsWith("Color") ||
+      n.endsWith("Bias") ||
+      n.endsWith("Distance") ||
+      n.endsWith("IOR") ||
+      n.endsWith("ThicknessRange")
+    );
+  }
+  return false;
+}

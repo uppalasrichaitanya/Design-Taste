@@ -114,6 +114,47 @@ The inspector opens a local web UI (URL printed in the terminal). Select the std
 9. **`critique_render`** (needs a vision key + Playwright chromium) — get a rubric from step 2, then pass the same dirty HTML as `html` and the rubric as `rubric`: `{"html": "<the dirty HTML>", "rubric": {…}}`. Expect a 0-10 score and findings naming the font-family sprawl, accent colors, and missing alt text.
 10. **`get_scene_guidance`** (needs a vision key; Playwright NOT required) — try `{"context": "A hero product scene: premium headphones floating over a dark reflective surface, calm tech-luxury mood, Three.js"}`. Expect camera/lighting/materials/pacingNotes plus the `gates[]` trail; takes 30-120s (several sequential model calls).
 
+## Wiring it into an MCP host permanently
+
+The inspector is for exploring; to make the server a permanent tool source for your editor/agent, register it in the host's MCP config. The server itself is just `node dist/index.js` over stdio — the only differences between hosts are the config file location and shape.
+
+**Qwen Code** (settings JSON — `~/.qwen/settings.json`, or repo-level `.qwen/settings.json`):
+
+```json
+{
+  "mcpServers": {
+    "design-taste": {
+      "command": "node",
+      "args": ["C:/Users/srich/OneDrive/Desktop/DESIGN-skills/design-taste-mcp/dist/index.js"],
+      "env": {
+        "NARA_API_KEY": "your-key-here"
+      }
+    }
+  }
+}
+```
+
+**Claude Desktop** (`claude_desktop_config.json` — Windows: `%APPDATA%/Claude/claude_desktop_config.json`, macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "design-taste": {
+      "command": "node",
+      "args": ["C:/Users/srich/OneDrive/Desktop/DESIGN-skills/design-taste-mcp/dist/index.js"],
+      "env": {
+        "NARA_API_KEY": "your-key-here"
+      }
+    }
+  }
+}
+```
+
+Two notes that matter:
+
+- **Put the vision key in the host's `env` block, not just your shell.** MCP hosts spawn servers with a filtered environment (see the MCP host note in Vision providers) — a key that works in your terminal will be invisible to the host-spawned server without this block.
+- **Any provider key works** — swap `NARA_API_KEY` for `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `BAI_API_KEY`/`GLM/QWEN_API_KEY`, or `MUSE_SPARK_API_KEY` per the resolution order in Vision providers. To pin a specific provider/model add `"DESIGN_TASTE_VISION_PROVIDER": "nara"` and/or `"DESIGN_TASTE_VISION_MODEL": "agnes-2.5-flash"` to the same `env` block.
+
 ## Tools
 
 ### `get_design_constraints`
