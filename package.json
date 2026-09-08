@@ -7,6 +7,36 @@
   "bin": {
     "design-taste-mcp": "dist/index.js"
   },
+  "files": [
+    "dist",
+    "src",
+    "scripts",
+    "README.md",
+    "LICENSE",
+    "tsconfig.json"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "design",
+    "design-systems",
+    "ai",
+    "coding-agent",
+    "accessibility",
+    "axe-core",
+    "ui",
+    "design-taste"
+  ],
+  "author": "Sri Chaitanya Uppala",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uppalasrichaitanya/Design-Taste.git"
+  },
+  "homepage": "https://github.com/uppalasrichaitanya/Design-Taste#readme",
+  "bugs": {
+    "url": "https://github.com/uppalasrichaitanya/Design-Taste/issues"
+  },
   "engines": {
     "node": ">=20.18.0"
   },
@@ -16,7 +46,6 @@
     "start": "node --env-file-if-exists=.env dist/index.js",
     "test": "node --env-file-if-exists=.env scripts/acceptance-test.mjs"
   },
-  "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
     "axe-core": "^4.10.0",

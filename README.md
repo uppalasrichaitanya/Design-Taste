@@ -70,7 +70,25 @@ Connect in the web UI it opens, then try these — each one demonstrates a core 
 
 ### Wire it into your host permanently
 
-The inspector is for exploring. To register the server permanently, add it to your host's MCP config — Qwen Code (`~/.qwen/settings.json`) or Claude Desktop (`%APPDATA%/Claude/claude_desktop_config.json` on Windows, `~/Library/Application Support/Claude/...` on macOS):
+The inspector is for exploring. To register the server permanently, add it to your host's MCP config — Qwen Code (`~/.qwen/settings.json`) or Claude Desktop (`%APPDATA%/Claude/claude_desktop_config.json` on Windows, `~/Library/Application Support/Claude/...` on macOS).
+
+**Zero-clone install (published npm package):**
+
+```jsonc
+{
+  "mcpServers": {
+    "design-taste": {
+      "command": "npx",
+      "args": ["-y", "design-taste-mcp"],
+      "env": {
+        "NARA_API_KEY": "your-key-here"
+      }
+    }
+  }
+}
+```
+
+**From a local clone:**
 
 ```jsonc
 {
