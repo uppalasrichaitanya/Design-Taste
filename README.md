@@ -1,10 +1,43 @@
+<div align="center">
+
+<img src="docs/logo.png" alt="Design-Taste MCP" width="360">
+
 # Design-Taste MCP
 
 **Design taste, as tools your AI agent can actually call.**
 
+[![npm](https://img.shields.io/npm/v/design-taste-mcp.svg)](https://www.npmjs.com/package/design-taste-mcp)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![MCP](https://img.shields.io/badge/Model%20Context-Protocol-7c3aed)](https://modelcontextprotocol.io)
+
+*Plan · Check · Pull · Critique — seven tools that give your coding agent a design brain at every stage of the build.*
+
+</div>
+
+---
+
 Most AI-coded UIs look generated because no tool ever told the agent what *good* means — not at the start, not mid-build, not after. Design-Taste MCP fixes that with seven focused tools covering the whole UI build: **plan** the system before writing code, **check** the source as it's written, **pull** proven components instead of inventing them, and **critique** the rendered result like a real art director.
 
 Built for the [Model Context Protocol](https://modelcontextprotocol.io): plug it into Qwen Code, Claude Desktop, or any MCP host, and your agent gets a design brain it reaches for at each stage of the work.
+
+## Install
+
+**npm (zero clone):**
+
+```bash
+npx design-taste-mcp        # run it directly
+npm install -g design-taste-mcp   # or install once, then: design-taste-mcp
+```
+
+**From source:**
+
+```bash
+git clone https://github.com/uppalasrichaitanya/Design-Taste.git
+cd Design-Taste/design-taste-mcp
+npm install && npm run build
+```
+
+Then register it with your MCP host — full config JSON in [Wire it into your host](#wire-it-into-your-host-permanently).
 
 ## Why it's different
 
@@ -27,7 +60,7 @@ Built for the [Model Context Protocol](https://modelcontextprotocol.io): plug it
 
 The tools are designed to chain: `get_design_constraints` → build → `run_static_checks` → fix → `critique_render` → refine. Scene work adds `get_scene_guidance` before the build, with `get_style_reference` and `search_components` supplying the pieces in between.
 
-## Quick start
+## Quick start (from a local clone)
 
 **Prerequisites:** Node ≥ 20.18. Optionally — only for the two vision tools — Playwright chromium and a vision API key (see [Vision providers](#vision-providers-pluggable-config-driven)).
 

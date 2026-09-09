@@ -1,6 +1,6 @@
 {
   "name": "design-taste-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MCP server giving AI coding agents design taste across the UI-building workflow: rubrics, static checks, component/style registries, motion presets, render critique, and staged 3D scene guidance.",
   "type": "module",
   "main": "dist/index.js",
@@ -11,6 +11,7 @@
     "dist",
     "src",
     "scripts",
+    "docs",
     "README.md",
     "LICENSE",
     "tsconfig.json"
