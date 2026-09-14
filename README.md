@@ -20,6 +20,17 @@ Most AI-coded UIs look generated because no tool ever told the agent what *good*
 
 Built for the [Model Context Protocol](https://modelcontextprotocol.io): plug it into Qwen Code, Claude Desktop, or any MCP host, and your agent gets a design brain it reaches for at each stage of the work.
 
+## Table of Contents
+
+- [Why it's different](#why-its-different)
+- [Quick example](#quick-example)
+- [Install](#install)
+- [The seven tools](#the-seven-tools)
+- [Quick start](#quick-start-from-a-local-clone)
+- [Tool reference](#tool-reference)
+- [Vision providers](#vision-providers)
+- [Testing](#testing)
+
 ## Install
 
 **npm (zero clone):**
@@ -38,6 +49,31 @@ npm install && npm run build
 ```
 
 Then register it with your MCP host — full config JSON in [Wire it into your host](#wire-it-into-your-host-permanently).
+
+## Quick example
+
+The tools are designed to chain — an agent calls them in sequence as it builds UI:
+
+```text
+# 1. Plan - get context-specific design constraints
+get_design_constraints({ context: "marketing" })
+→ { maxAccentColors: 2, maxFontFamilies: 2, contrastMinimum: 4.5, ... }
+
+# 2. Pull - grab a real component instead of inventing one
+search_components({ query: "modal", style: "animated" })
+→ [{ name: "Animated modal (Motion)", code: "...", dependencies: ["motion"] }]
+
+# 3. Check - lint the source as it's written
+run_static_checks({ code: "<html>...hero.png...</html>", format: "html", rubric: <output> })
+→ [{ rule: "axe:image-alt", severity: "error", message: "Images must have alternative text" }]
+
+# 4. Fix - add the missing alt attribute
+<img src="hero.png" alt="Hero image of product">
+
+# 5. Critique - render and visually score the result
+critique_render({ html: "<html>...", rubric: <output> })
+→ { score: 7, findings: [{ issue: "low contrast on CTA button", rubricField: "contrastMinimum" }] }
+```
 
 ## Why it's different
 
