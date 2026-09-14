@@ -32,6 +32,7 @@ import {
   type VisionImage,
   type GenerationRequest,
 } from "./visionProvider.js";
+import { type SceneGateEntry } from "./types.js";
 
 export const GetSceneGuidanceInput = z
   .object({
@@ -42,15 +43,6 @@ export const GetSceneGuidanceInput = z
   .strict();
 
 export type GetSceneGuidanceArgs = z.infer<typeof GetSceneGuidanceInput>;
-
-export interface SceneGateEntry {
-  passId: string;
-  title: string;
-  passed: boolean | null;
-  gaps: string[];
-  selfCorrected: boolean;
-  gateError?: string;
-}
 
 // Type alias (not interface): the MCP SDK's structuredContent requires an
 // implicit index signature, which TS only grants to object type aliases.
@@ -105,7 +97,7 @@ export async function getSceneGuidance(args: GetSceneGuidanceArgs): Promise<Scen
       let entry: SceneGateEntry = {
         passId: pass.id,
         title: pass.title,
-        passed: null,
+        passed: undefined,
         gaps: [],
         selfCorrected: false,
       };
@@ -142,7 +134,7 @@ export async function getSceneGuidance(args: GetSceneGuidanceArgs): Promise<Scen
         const redoReview = await gatePass(provider, pass, brief, decided, corrected);
         if ("gateError" in redoReview) {
           entry.gateError = redoReview.gateError;
-          entry.passed = null;
+          entry.passed = undefined;
         } else {
           entry.passed = redoReview.pass && redoStructural.length === 0;
         }

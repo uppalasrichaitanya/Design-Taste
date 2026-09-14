@@ -254,7 +254,7 @@ server.registerTool(
 const SceneGateEntryOutput = z.object({
   passId: z.string(),
   title: z.string(),
-  passed: z.boolean().nullable(),
+  passed: z.boolean().optional(),
   gaps: z.array(z.string()),
   selfCorrected: z.boolean(),
   gateError: z.string().optional(),
