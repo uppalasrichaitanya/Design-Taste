@@ -1,4 +1,7 @@
-# [Design-Taste MCP](.) <img src="docs/logo.png" alt="logo" width="96" align="center">
+<div align="center">
+  <img src="docs/logo.png" alt="Design-Taste MCP" height="48">
+  <h1 id="design-taste-mcp">Design-Taste MCP</h1>
+</div>
 
 **Design taste, as tools your AI agent can actually call.**
 
