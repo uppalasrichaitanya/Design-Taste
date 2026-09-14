@@ -1,4 +1,8 @@
-<img src="docs/logo.png" alt="Design-Taste MCP" width="64"> **Design-Taste MCP**
+<div align="center">
+
+<img src="docs/logo.png" alt="Design-Taste MCP" width="360">
+
+# Design-Taste MCP
 
 **Design taste, as tools your AI agent can actually call.**
 
@@ -7,6 +11,8 @@
 [![MCP](https://img.shields.io/badge/Model%20Context-Protocol-7c3aed)](https://modelcontextprotocol.io)
 
 *Plan · Check · Pull · Critique — seven tools that give your coding agent a design brain at every stage of the build.*
+
+</div>
 
 ---
 
